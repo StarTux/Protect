@@ -1,0 +1,8 @@
+name: Protect
+description: Protect worlds from player modifications
+author: StarTux
+version: 0.1
+main: com.winthier.protect.ProtectPlugin
+depend: [ GenericEvents ]
+commands: {}
+permissions: {}

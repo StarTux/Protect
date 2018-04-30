@@ -26,6 +26,7 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -201,5 +202,16 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerCanDamageEntity(PlayerCanDamageEntityEvent event) {
         onProtectEvent(event.getPlayer(), event);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    public void onPlayerEggThrow(PlayerEggThrowEvent event) {
+        final Player player = event.getPlayer();
+        if (player.isOp()) return;
+        if (player.hasPermission("protect.override")) return;
+        if (worlds.contains(player.getWorld().getName())) {
+            event.setHatching(false);
+            event.setNumHatches((byte)0);
+        }
     }
 }

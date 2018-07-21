@@ -4,14 +4,14 @@
   <groupId>com.winthier.protect</groupId>
   <artifactId>protect</artifactId>
   <packaging>jar</packaging>
-  <version>0.1</version>
+  <version>0.1-SNAPSHOT</version>
   <name>Protect</name>
-  <url>http://www.winthier.com</url>
+  <url>https://cavetale.com</url>
   <repositories>
     <!-- Spigot Repo -->
     <repository>
       <id>spigot-repo</id>
-      <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+      <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
     </repository>
   </repositories>
   <dependencies>
@@ -19,7 +19,7 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.12.2-R0.1-SNAPSHOT</version>
+      <version>1.13-pre7-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <!-- Lombok -->
@@ -29,11 +29,11 @@
       <version>1.14.8</version>
       <scope>provided</scope>
     </dependency>
-    <!-- Lombok -->
+    <!-- GenericEvents -->
     <dependency>
       <groupId>com.winthier.generic_events</groupId>
       <artifactId>generic_events</artifactId>
-      <version>0.1</version>
+      <version>0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

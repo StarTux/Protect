@@ -55,7 +55,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction() == Action.PHYSICAL) {
-            if (event.getClickedBlock().getType() == Material.SOIL) {
+            if (event.getClickedBlock().getType() == Material.FARMLAND) {
                 event.setCancelled(true);
                 return;
             } else {
@@ -65,25 +65,37 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         if (event.isBlockInHand()) return;
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             switch (event.getClickedBlock().getType()) {
-            case ENCHANTMENT_TABLE:
+            case ENCHANTING_TABLE:
             case ENDER_CHEST:
             case CHEST:
             case TRAPPED_CHEST:
-            case WORKBENCH:
+            case CRAFTING_TABLE:
             case ACACIA_DOOR:
+            case ACACIA_TRAPDOOR:
             case BIRCH_DOOR:
+            case BIRCH_TRAPDOOR:
             case DARK_OAK_DOOR:
+            case DARK_OAK_TRAPDOOR:
+            case IRON_DOOR:
+            case IRON_TRAPDOOR:
             case JUNGLE_DOOR:
+            case JUNGLE_TRAPDOOR:
+            case OAK_DOOR:
+            case OAK_TRAPDOOR:
             case SPRUCE_DOOR:
-            case WOOD_DOOR:
-            case WOODEN_DOOR:
+            case SPRUCE_TRAPDOOR:
+            case ACACIA_BUTTON:
+            case BIRCH_BUTTON:
+            case DARK_OAK_BUTTON:
+            case JUNGLE_BUTTON:
+            case OAK_BUTTON:
+            case SPRUCE_BUTTON:
             case STONE_BUTTON:
-            case WOOD_BUTTON:
             case ACACIA_FENCE_GATE:
             case BIRCH_FENCE_GATE:
             case DARK_OAK_FENCE_GATE:
-            case FENCE_GATE:
             case JUNGLE_FENCE_GATE:
+            case OAK_FENCE_GATE:
             case SPRUCE_FENCE_GATE:
                 return;
             default:

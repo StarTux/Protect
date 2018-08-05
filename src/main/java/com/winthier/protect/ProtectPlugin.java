@@ -2,7 +2,6 @@ package com.winthier.protect;
 
 import com.winthier.generic_events.PlayerCanBuildEvent;
 import com.winthier.generic_events.PlayerCanDamageEntityEvent;
-import com.winthier.generic_events.PlayerCanGriefEvent;
 import java.util.Arrays;
 import java.util.List;
 import org.bukkit.Material;
@@ -203,11 +202,6 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerCanBuild(PlayerCanBuildEvent event) {
-        onProtectEvent(event.getPlayer(), event);
-    }
-
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    public void onPlayerCanGrief(PlayerCanGriefEvent event) {
         onProtectEvent(event.getPlayer(), event);
     }
 

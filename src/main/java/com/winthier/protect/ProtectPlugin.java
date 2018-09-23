@@ -2,7 +2,7 @@ package com.winthier.protect;
 
 import com.winthier.generic_events.PlayerCanBuildEvent;
 import com.winthier.generic_events.PlayerCanDamageEntityEvent;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -32,11 +32,20 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ProtectPlugin extends JavaPlugin implements Listener {
-    private List<String> worlds = Arrays.asList("Spawn");
+    private final List<String> worlds = new ArrayList<>();
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+        importConfig();
         getServer().getPluginManager().registerEvents(this, this);
+    }
+
+    void importConfig() {
+        reloadConfig();
+        worlds.clear();
+        worlds.addAll(getConfig().getStringList("worlds"));
+        System.out.println("Protecting worlds: " + worlds);
     }
 
     public void onProtectEvent(Player player, Cancellable event) {

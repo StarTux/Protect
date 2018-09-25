@@ -82,10 +82,8 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
                     for (int x = ax; x <= bx; x += 1) {
                         Block block = world.getBlockAt(x, y, z);
                         if (add) {
-                            if (farmMaterials.contains(block.getType())) {
-                                farmBlocks.add(block);
-                                count += 1;
-                            }
+                            farmBlocks.add(block);
+                            count += 1;
                         } else {
                             if (farmBlocks.remove(block)) count += 1;
                         }
@@ -161,6 +159,8 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
                 return;
             }
         }
+        if (farmBlocks.contains(event.getClickedBlock())) return;
+        if (farmBlocks.contains(event.getClickedBlock().getRelative(0, 1, 0))) return;
         if (event.isBlockInHand()) return;
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             switch (event.getClickedBlock().getType()) {
@@ -170,19 +170,19 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
             case TRAPPED_CHEST:
             case CRAFTING_TABLE:
             case ACACIA_DOOR:
-            case ACACIA_TRAPDOOR:
+            // case ACACIA_TRAPDOOR:
             case BIRCH_DOOR:
-            case BIRCH_TRAPDOOR:
+            // case BIRCH_TRAPDOOR:
             case DARK_OAK_DOOR:
-            case DARK_OAK_TRAPDOOR:
+            // case DARK_OAK_TRAPDOOR:
             case IRON_DOOR:
-            case IRON_TRAPDOOR:
+            // case IRON_TRAPDOOR:
             case JUNGLE_DOOR:
-            case JUNGLE_TRAPDOOR:
+            // case JUNGLE_TRAPDOOR:
             case OAK_DOOR:
-            case OAK_TRAPDOOR:
+            // case OAK_TRAPDOOR:
             case SPRUCE_DOOR:
-            case SPRUCE_TRAPDOOR:
+            // case SPRUCE_TRAPDOOR:
             case ACACIA_BUTTON:
             case BIRCH_BUTTON:
             case DARK_OAK_BUTTON:
@@ -241,6 +241,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onBlockDamage(BlockDamageEvent event) {
+        if (farmBlocks.contains(event.getBlock())) return;
         onProtectEvent(event.getPlayer(), event);
     }
 

@@ -3,9 +3,17 @@ package com.winthier.protect;
 import com.winthier.generic_events.PlayerCanBuildEvent;
 import com.winthier.generic_events.PlayerCanDamageEntityEvent;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Cancellable;
@@ -29,10 +37,13 @@ import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ProtectPlugin extends JavaPlugin implements Listener {
     private final List<String> worlds = new ArrayList<>();
+    private final Set<Block> farmBlocks = new HashSet<>();
+    private final Set<Material> farmMaterials = EnumSet.noneOf(Material.class);
 
     @Override
     public void onEnable() {
@@ -41,11 +52,91 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
     }
 
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
+        if (args.length == 1 && args[0].equals("reload")) {
+            importConfig();
+            sender.sendMessage("Config reloaded");
+            return true;
+        } else if (args.length == 1 && (args[0].equals("addfarmblocks") || args[0].equals("removefarmblocks"))) {
+            if (!(sender instanceof Player)) return false;
+            Player player = (Player)sender;
+            boolean add = args[0].startsWith("add");
+            if (!player.hasMetadata("SelectionA")
+                || !player.hasMetadata("SelectionB")) {
+                player.sendMessage("Make a selection first.");
+                return true;
+            }
+            List<Integer> sela = (List<Integer>)player.getMetadata("SelectionA").get(0).value();
+            List<Integer> selb = (List<Integer>)player.getMetadata("SelectionB").get(0).value();
+            int ax = Math.min(sela.get(0), selb.get(0));
+            int ay = Math.min(sela.get(1), selb.get(1));
+            int az = Math.min(sela.get(2), selb.get(2));
+            int bx = Math.max(sela.get(0), selb.get(0));
+            int by = Math.max(sela.get(1), selb.get(1));
+            int bz = Math.max(sela.get(2), selb.get(2));
+            World world = getServer().getWorld(worlds.get(0));
+            int count = 0;
+            for (int y = ay; y <= by; y += 1) {
+                for (int z = az; z <= bz; z += 1) {
+                    for (int x = ax; x <= bx; x += 1) {
+                        Block block = world.getBlockAt(x, y, z);
+                        if (add) {
+                            if (farmMaterials.contains(block.getType())) {
+                                farmBlocks.add(block);
+                                count += 1;
+                            }
+                        } else {
+                            if (farmBlocks.remove(block)) count += 1;
+                        }
+                    }
+                }
+            }
+            saveFarmBlocks();
+            if (add) {
+                player.sendMessage("" + count + " farm blocks added.");
+            } else {
+                player.sendMessage("" + count + " farm blocks removed.");
+            }
+            return true;
+        }
+        return false;
+    }
+
     void importConfig() {
         reloadConfig();
         worlds.clear();
         worlds.addAll(getConfig().getStringList("worlds"));
-        System.out.println("Protecting worlds: " + worlds);
+        farmMaterials.clear();
+        for (String key: getConfig().getStringList("farm-materials")) {
+            try {
+                Material mat = Material.valueOf(key.toUpperCase());
+                farmMaterials.add(mat);
+            } catch (IllegalArgumentException iae) {
+                iae.printStackTrace();
+            }
+        }
+        farmBlocks.clear();
+        if (worlds.isEmpty()) return;
+        World world = getServer().getWorld(worlds.get(0));
+        if (world == null) return;
+        Iterator<Integer> is = getConfig().getIntegerList("farm-blocks").iterator();
+        while (is.hasNext()) {
+            int x = is.next(), y = is.next(), z = is.next();
+            farmBlocks.add(world.getBlockAt(x, y, z));
+        }
+        getLogger().info("Protecting worlds: " + worlds + ", " + farmBlocks.size() + " farm blocks.");
+    }
+
+    void saveFarmBlocks() {
+        List<Integer> ls = new ArrayList<>();
+        for (Block block: farmBlocks) {
+            ls.add(block.getX());
+            ls.add(block.getY());
+            ls.add(block.getZ());
+        }
+        getConfig().set("farm-blocks", ls);
+        saveConfig();
     }
 
     public void onProtectEvent(Player player, Cancellable event) {
@@ -114,12 +205,37 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    public void onPlayerMove(PlayerMoveEvent event) {
+        final Player player = event.getPlayer();
+        if (player.isOp()) return;
+        if (!worlds.contains(player.getWorld().getName())) return;
+        Block block = player.getLocation().getBlock();
+        if (farmBlocks.contains(block) || farmBlocks.contains(block.getRelative(0, 1, 0))) {
+            if (player.getGameMode() != GameMode.SURVIVAL) {
+                player.setGameMode(GameMode.SURVIVAL);
+            }
+        } else {
+            if (player.getGameMode() != GameMode.ADVENTURE) {
+                player.setGameMode(GameMode.ADVENTURE);
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onBlockPlace(BlockPlaceEvent event) {
+        if (farmBlocks.contains(event.getBlock())
+            && farmMaterials.contains(event.getBlock().getType())) {
+            return;
+        }
         onProtectEvent(event.getPlayer(), event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onBlockBreak(BlockBreakEvent event) {
+        if (farmBlocks.contains(event.getBlock())
+            && farmMaterials.contains(event.getBlock().getType())) {
+            return;
+        }
         onProtectEvent(event.getPlayer(), event);
     }
 

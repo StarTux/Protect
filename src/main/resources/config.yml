@@ -1,1 +1,8 @@
 worlds: [spawn]
+farm-materials:
+- carrot
+- potato
+- melon
+- pumpkin
+- wheat
+farm-blocks: []

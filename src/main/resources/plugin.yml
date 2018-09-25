@@ -6,5 +6,13 @@ api-version: 1.13
 website: https://cavetale.com
 main: com.winthier.protect.ProtectPlugin
 depend: [ GenericEvents ]
-commands: {}
-permissions: {}
+commands:
+  protect:
+    description: Admin interface
+    permission: protect.protect
+    usage: |-
+      /protect reload
+      /protect addfarmblocks
+permissions:
+  protect.protect:
+    description: Use /protect

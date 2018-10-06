@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -38,12 +40,14 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ProtectPlugin extends JavaPlugin implements Listener {
     private final List<String> worlds = new ArrayList<>();
     private final Set<Block> farmBlocks = new HashSet<>();
     private final Set<Material> farmMaterials = EnumSet.noneOf(Material.class);
+    private static final String META_FARM = "protect.farm";
 
     @Override
     public void onEnable() {
@@ -62,24 +66,23 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
             if (!(sender instanceof Player)) return false;
             Player player = (Player)sender;
             boolean add = args[0].startsWith("add");
-            if (!player.hasMetadata("SelectionA")
-                || !player.hasMetadata("SelectionB")) {
-                player.sendMessage("Make a selection first.");
+            int ax, ay, az, bx, by, bz;
+            try {
+                ax = getSelectionMeta(player, "SelectionAX");
+                ay = getSelectionMeta(player, "SelectionAY");
+                az = getSelectionMeta(player, "SelectionAZ");
+                bx = getSelectionMeta(player, "SelectionBX");
+                by = getSelectionMeta(player, "SelectionBY");
+                bz = getSelectionMeta(player, "SelectionBZ");
+            } catch (NullPointerException npe) {
+                sender.sendMessage("No selection made.");
                 return true;
             }
-            List<Integer> sela = (List<Integer>)player.getMetadata("SelectionA").get(0).value();
-            List<Integer> selb = (List<Integer>)player.getMetadata("SelectionB").get(0).value();
-            int ax = Math.min(sela.get(0), selb.get(0));
-            int ay = Math.min(sela.get(1), selb.get(1));
-            int az = Math.min(sela.get(2), selb.get(2));
-            int bx = Math.max(sela.get(0), selb.get(0));
-            int by = Math.max(sela.get(1), selb.get(1));
-            int bz = Math.max(sela.get(2), selb.get(2));
             World world = getServer().getWorld(worlds.get(0));
             int count = 0;
-            for (int y = ay; y <= by; y += 1) {
-                for (int z = az; z <= bz; z += 1) {
-                    for (int x = ax; x <= bx; x += 1) {
+            for (int y = Math.min(ay, by); y <= Math.max(ay, by); y += 1) {
+                for (int z = Math.min(az, bz); z <= Math.max(az, bz); z += 1) {
+                    for (int x = Math.min(ax, bx); x <= Math.max(ax, bx); x += 1) {
                         Block block = world.getBlockAt(x, y, z);
                         if (add) {
                             farmBlocks.add(block);
@@ -211,10 +214,18 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         if (!worlds.contains(player.getWorld().getName())) return;
         Block block = player.getLocation().getBlock();
         if (farmBlocks.contains(block) || farmBlocks.contains(block.getRelative(0, 1, 0))) {
-            if (player.getGameMode() != GameMode.SURVIVAL) {
-                player.setGameMode(GameMode.SURVIVAL);
+            // Enter farms
+            if (!player.hasMetadata(META_FARM)) {
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("Entering Spawn Farm Area"));
+                if (player.getGameMode() != GameMode.SURVIVAL) {
+                    player.setGameMode(GameMode.SURVIVAL);
+                }
+                setMeta(player, META_FARM, true);
             }
-        } else {
+        } else if (player.hasMetadata(META_FARM)) {
+            // Leave farms
+            player.removeMetadata(META_FARM, this);
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("Leaving Spawn Farm Area"));
             if (player.getGameMode() != GameMode.ADVENTURE) {
                 player.setGameMode(GameMode.ADVENTURE);
             }
@@ -345,5 +356,16 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
             event.setHatching(false);
             event.setNumHatches((byte)0);
         }
+    }
+
+    // --- Meta Utility
+
+    int getSelectionMeta(Player player, String key) {
+        if (!player.hasMetadata(key)) throw new NullPointerException();
+        return player.getMetadata(key).get(0).asInt();
+    }
+
+    void setMeta(Player player, String key, Object value) {
+        player.setMetadata(key, new FixedMetadataValue(this, value));
     }
 }

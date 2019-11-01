@@ -8,14 +8,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Cancellable;
@@ -36,6 +35,7 @@ import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
+import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -57,16 +57,24 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command,
+                             String alias, String[] args) {
         if (args.length == 1 && args[0].equals("reload")) {
             importConfig();
             sender.sendMessage("Config reloaded");
             return true;
-        } else if (args.length == 1 && (args[0].equals("addfarmblocks") || args[0].equals("removefarmblocks"))) {
+        } else if (args.length == 1
+                   && (args[0].equals("addfarmblocks")
+                       || args[0].equals("removefarmblocks"))) {
             if (!(sender instanceof Player)) return false;
-            Player player = (Player)sender;
+            Player player = (Player) sender;
             boolean add = args[0].startsWith("add");
-            int ax, ay, az, bx, by, bz;
+            int ax;
+            int ay;
+            int az;
+            int bx;
+            int by;
+            int bz;
             try {
                 ax = getSelectionMeta(player, "SelectionAX");
                 ay = getSelectionMeta(player, "SelectionAY");
@@ -123,10 +131,13 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         if (world == null) return;
         Iterator<Integer> is = getConfig().getIntegerList("farm-blocks").iterator();
         while (is.hasNext()) {
-            int x = is.next(), y = is.next(), z = is.next();
+            int x = is.next();
+            int y = is.next();
+            int z = is.next();
             farmBlocks.add(world.getBlockAt(x, y, z));
         }
-        getLogger().info("Protecting worlds: " + worlds + ", " + farmBlocks.size() + " farm blocks.");
+        getLogger().info("Protecting worlds: " + worlds + ", "
+                         + farmBlocks.size() + " farm blocks.");
     }
 
     void saveFarmBlocks() {
@@ -216,7 +227,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         if (farmBlocks.contains(block) || farmBlocks.contains(block.getRelative(0, 1, 0))) {
             // Enter farms
             if (!player.hasMetadata(META_FARM)) {
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("Entering Spawn Farm Area"));
+                player.sendActionBar("Entering Spawn Farm Area");
                 if (player.getGameMode() != GameMode.SURVIVAL) {
                     player.setGameMode(GameMode.SURVIVAL);
                 }
@@ -225,7 +236,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         } else if (player.hasMetadata(META_FARM)) {
             // Leave farms
             player.removeMetadata(META_FARM, this);
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("Leaving Spawn Farm Area"));
+            player.sendActionBar("Leaving Spawn Farm Area");
             if (player.getGameMode() != GameMode.ADVENTURE) {
                 player.setGameMode(GameMode.ADVENTURE);
             }
@@ -259,7 +270,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     // Frost Walker
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onEntityBlockForm(EntityBlockFormEvent event) {
-        Player player = event.getEntity() instanceof Player ? (Player)event.getEntity() : null;
+        Player player = event.getEntity() instanceof Player ? (Player) event.getEntity() : null;
         if (player == null) return;
         onProtectEvent(player, event);
     }
@@ -274,29 +285,29 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         onProtectEvent(event.getPlayer(), event);
     }
 
+    Player getPlayerDamager(Entity damager) {
+        if (damager instanceof Player) {
+            return (Player) damager;
+        }
+        if (damager instanceof Projectile) {
+            Projectile proj = (Projectile) damager;
+            if (!(proj.getShooter() instanceof Player)) return null;
+            return (Player) proj.getShooter();
+        }
+        return null;
+    }
+
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        Player player;
-        if (event.getDamager() instanceof Player) {
-            player = (Player)event.getDamager();
-        } else if (event.getDamager() instanceof Projectile && ((Projectile)event.getDamager()).getShooter() instanceof Player) {
-            player = (Player)((Projectile)event.getDamager()).getShooter();
-        } else {
-            return;
-        }
+        Player player = getPlayerDamager(event.getDamager());
+        if (player == null) return;
         onProtectEvent(player, event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onEntityCombustByEntity(EntityCombustByEntityEvent event) {
-        Player player;
-        if (event.getCombuster() instanceof Player) {
-            player = (Player)event.getCombuster();
-        } else if (event.getCombuster() instanceof Projectile && ((Projectile)event.getCombuster()).getShooter() instanceof Player) {
-            player = (Player)((Projectile)event.getCombuster()).getShooter();
-        } else {
-            return;
-        }
+        Player player = getPlayerDamager(event.getCombuster());
+        if (player == null) return;
         onProtectEvent(player, event);
     }
 
@@ -315,7 +326,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onHangingBreakByEntity(HangingBreakByEntityEvent event) {
         if (event.getRemover() instanceof Player) {
-            onProtectEvent((Player)event.getRemover(), event);
+            onProtectEvent((Player) event.getRemover(), event);
         } else {
             if (!worlds.contains(event.getEntity().getWorld().getName())) return;
             event.setCancelled(true);
@@ -354,8 +365,14 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         if (player.hasPermission("protect.override")) return;
         if (worlds.contains(player.getWorld().getName())) {
             event.setHatching(false);
-            event.setNumHatches((byte)0);
+            event.setNumHatches((byte) 0);
         }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    public void onPlayerFish(PlayerFishEvent event) {
+        if (event.getCaught() == null) return;
+        onProtectEvent(event.getPlayer(), event);
     }
 
     // --- Meta Utility

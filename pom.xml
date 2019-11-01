@@ -1,27 +1,41 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>com.winthier.protect</groupId>
   <artifactId>protect</artifactId>
-  <packaging>jar</packaging>
   <version>0.1-SNAPSHOT</version>
+
+  <packaging>jar</packaging>
   <name>Protect</name>
-  <url>https://cavetale.com</url>
+  <url>https://github.com/StarTux/Protect</url>
+
   <repositories>
-    <!-- Spigot Repo -->
+
+    <!-- Paper Repo -->
     <repository>
-      <id>spigot-repo</id>
-      <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+      <id>papermc</id>
+      <url>https://papermc.io/repo/repository/maven-public/</url>
     </repository>
+
+    <!-- Cavetale Repo -->
+    <repository>
+      <id>cavetale</id>
+      <url>https://cavetale.com/jenkins/plugin/repository/everything/</url>
+    </repository>
+
   </repositories>
   <dependencies>
-    <!-- Spigot-API -->
+
+    <!-- Paper API -->
     <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot-api</artifactId>
-      <version>1.13.1-R0.1-SNAPSHOT</version>
+      <groupId>com.destroystokyo.paper</groupId>
+      <artifactId>paper-api</artifactId>
+      <version>1.14.4-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
+      <optional>true</optional>
     </dependency>
+
     <!-- Lombok -->
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -29,6 +43,7 @@
       <version>1.14.8</version>
       <scope>provided</scope>
     </dependency>
+
     <!-- GenericEvents -->
     <dependency>
       <groupId>com.winthier.generic_events</groupId>
@@ -36,10 +51,12 @@
       <version>0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
+
   </dependencies>
   <build>
     <finalName>${project.name}</finalName>
     <plugins>
+
       <!-- Java 8 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -55,6 +72,7 @@
           </compilerArgs>
         </configuration>
       </plugin>
+
     </plugins>
   </build>
   <properties>

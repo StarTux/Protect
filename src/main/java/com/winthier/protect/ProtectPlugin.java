@@ -40,6 +40,7 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -213,6 +214,15 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
                 return;
             default:
                 break;
+            }
+            ItemStack item = event.getItem();
+            if (item != null) {
+                switch (item.getType()) {
+                case FIREWORK_ROCKET:
+                    return;
+                default:
+                    break;
+                }
             }
         }
         onProtectEvent(event.getPlayer(), event);

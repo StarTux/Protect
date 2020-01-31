@@ -1,5 +1,6 @@
 package com.winthier.protect;
 
+import com.destroystokyo.paper.MaterialTags;
 import com.winthier.generic_events.PlayerCanBuildEvent;
 import com.winthier.generic_events.PlayerCanDamageEntityEvent;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -40,6 +42,7 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -178,42 +181,20 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         if (farmBlocks.contains(event.getClickedBlock().getRelative(0, 1, 0))) return;
         if (event.isBlockInHand()) return;
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            switch (event.getClickedBlock().getType()) {
+            Material mat = event.getClickedBlock().getType();
+            if (Tag.DOORS.isTagged(mat)) return;
+            if (Tag.BUTTONS.isTagged(mat)) return;
+            if (MaterialTags.FENCE_GATES.isTagged(mat)) return;
+            switch (mat) {
             case ENCHANTING_TABLE:
             case ENDER_CHEST:
             case CHEST:
             case TRAPPED_CHEST:
             case CRAFTING_TABLE:
-            case ACACIA_DOOR:
-            // case ACACIA_TRAPDOOR:
-            case BIRCH_DOOR:
-            // case BIRCH_TRAPDOOR:
-            case DARK_OAK_DOOR:
-            // case DARK_OAK_TRAPDOOR:
-            case IRON_DOOR:
-            // case IRON_TRAPDOOR:
-            case JUNGLE_DOOR:
-            // case JUNGLE_TRAPDOOR:
-            case OAK_DOOR:
-            // case OAK_TRAPDOOR:
-            case SPRUCE_DOOR:
-            // case SPRUCE_TRAPDOOR:
-            case ACACIA_BUTTON:
-            case BIRCH_BUTTON:
-            case DARK_OAK_BUTTON:
-            case JUNGLE_BUTTON:
-            case OAK_BUTTON:
-            case SPRUCE_BUTTON:
-            case STONE_BUTTON:
-            case ACACIA_FENCE_GATE:
-            case BIRCH_FENCE_GATE:
-            case DARK_OAK_FENCE_GATE:
-            case JUNGLE_FENCE_GATE:
-            case OAK_FENCE_GATE:
-            case SPRUCE_FENCE_GATE:
+            case LECTERN:
+            case BARREL:
                 return;
-            default:
-                break;
+            default: break;
             }
             ItemStack item = event.getItem();
             if (item != null) {
@@ -382,6 +363,11 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerFish(PlayerFishEvent event) {
         if (event.getCaught() == null) return;
+        onProtectEvent(event.getPlayer(), event);
+    }
+
+    @EventHandler
+    public void onPlayerTakeLecternBook(PlayerTakeLecternBookEvent event) {
         onProtectEvent(event.getPlayer(), event);
     }
 

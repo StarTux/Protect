@@ -341,6 +341,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerCanBuild(PlayerCanBuildEvent event) {
+        if (farmBlocks.contains(event.getBlock())) return;
         onProtectEvent(event.getPlayer(), event);
     }
 

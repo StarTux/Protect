@@ -17,6 +17,7 @@ import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Cancellable;
@@ -268,11 +269,13 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        if (event.getRightClicked().getType() == EntityType.PIG) return;
         onProtectEvent(event.getPlayer(), event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
+        if (event.getRightClicked().getType() == EntityType.PIG) return;
         onProtectEvent(event.getPlayer(), event);
     }
 

@@ -170,8 +170,10 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerInteract(PlayerInteractEvent event) {
+        if (!worlds.contains(event.getPlayer().getWorld().getName())) return;
         if (event.getAction() == Action.PHYSICAL) {
-            if (event.getClickedBlock().getType() == Material.FARMLAND) {
+            Material mat = event.getClickedBlock().getType();
+            if (mat == Material.FARMLAND || mat == Material.TURTLE_EGG) {
                 event.setCancelled(true);
                 return;
             } else {

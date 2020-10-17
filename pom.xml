@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project>
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.winthier.protect</groupId>
@@ -31,7 +30,7 @@
     <dependency>
       <groupId>com.destroystokyo.paper</groupId>
       <artifactId>paper-api</artifactId>
-      <version>1.15.2-R0.1-SNAPSHOT</version>
+      <version>1.16.3-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -40,7 +39,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.14.8</version>
+      <version>1.18.12</version>
       <scope>provided</scope>
     </dependency>
 

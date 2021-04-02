@@ -1,18 +1,27 @@
+main: com.winthier.protect.ProtectPlugin
 name: Protect
-description: Protect worlds from player modifications
-author: StarTux
 version: 0.1
 api-version: 1.13
+
+description: Protect worlds from player modifications
+author: StarTux
 website: https://cavetale.com
-main: com.winthier.protect.ProtectPlugin
+
 depend: [ GenericEvents ]
+
 commands:
-  protect:
+
+protect:
     description: Admin interface
     permission: protect.protect
     usage: |-
       /protect reload
       /protect addfarmblocks
+
 permissions:
+
   protect.protect:
     description: Use /protect
+
+  protect.override:
+    description: Override world protection

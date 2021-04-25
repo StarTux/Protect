@@ -30,6 +30,7 @@ import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.CauldronLevelChangeEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -327,6 +328,17 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         default: break;
         }
         event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    public void onCauldronLevelChange(CauldronLevelChangeEvent event) {
+        if (!worlds.contains(event.getBlock().getWorld().getName())) return;
+        switch (event.getReason()) {
+        case EVAPORATE:
+        case EXTINGUISH:
+            event.setCancelled(true);
+        default: break;
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

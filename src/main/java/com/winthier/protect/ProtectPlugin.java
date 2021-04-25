@@ -28,6 +28,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
@@ -315,6 +316,16 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onBlockExplode(BlockExplodeEvent event) {
         if (!worlds.contains(event.getBlock().getWorld().getName())) return;
+        event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    public void onBlockIgnite(BlockIgniteEvent event) {
+        if (!worlds.contains(event.getBlock().getWorld().getName())) return;
+        switch (event.getCause()) {
+        case FLINT_AND_STEEL: return;
+        default: break;
+        }
         event.setCancelled(true);
     }
 

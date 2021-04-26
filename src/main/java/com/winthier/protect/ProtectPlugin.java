@@ -185,19 +185,23 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         if (farmBlocks.contains(event.getClickedBlock())) return;
         if (farmBlocks.contains(event.getClickedBlock().getRelative(0, 1, 0))) return;
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            Material mat = event.getClickedBlock().getType();
+            Block block = event.getClickedBlock();
+            Material mat = block.getType();
             if (Tag.DOORS.isTagged(mat)) return;
             if (Tag.BUTTONS.isTagged(mat)) return;
             if (MaterialTags.FENCE_GATES.isTagged(mat)) return;
             switch (mat) {
             case ENCHANTING_TABLE:
             case ENDER_CHEST:
-            case CHEST:
-            case TRAPPED_CHEST:
             case CRAFTING_TABLE:
             case LECTERN:
-            case BARREL:
                 return;
+            case CHEST:
+            case TRAPPED_CHEST:
+            case BARREL:
+                // Temp solutions to protect containers outside spawn
+                if (block.getWorld().getName().equals("spawn")) return;
+                break;
             default: break;
             }
             ItemStack item = event.getItem();

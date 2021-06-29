@@ -7,7 +7,7 @@ description: Protect worlds from player modifications
 author: StarTux
 website: https://cavetale.com
 
-depend: [ GenericEvents ]
+depend: [Core, GenericEvents]
 
 commands:
 

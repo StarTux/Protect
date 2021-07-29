@@ -1,9 +1,8 @@
 package com.winthier.protect;
 
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
+import com.cavetale.core.event.block.PlayerCanBuildEvent;
 import com.destroystokyo.paper.MaterialTags;
-import com.winthier.generic_events.PlayerCanBuildEvent;
-import com.winthier.generic_events.PlayerCanDamageEntityEvent;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -383,10 +382,10 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         onProtectEvent(event.getPlayer(), event);
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    public void onPlayerCanDamageEntity(PlayerCanDamageEntityEvent event) {
-        onProtectEvent(event.getPlayer(), event);
-    }
+    // @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    // public void onPlayerCanDamageEntity(PlayerCanDamageEntityEvent event) {
+    //     onProtectEvent(event.getPlayer(), event);
+    // }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerEggThrow(PlayerEggThrowEvent event) {

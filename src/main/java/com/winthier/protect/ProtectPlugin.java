@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.World;
@@ -44,17 +43,14 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ProtectPlugin extends JavaPlugin implements Listener {
     private final List<String> worlds = new ArrayList<>();
     private final Set<Block> farmBlocks = new HashSet<>();
     private final Set<Material> farmMaterials = EnumSet.noneOf(Material.class);
-    private static final String META_FARM = "protect.farm";
 
     @Override
     public void onEnable() {
@@ -215,31 +211,6 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
             }
         }
         onProtectEvent(event.getPlayer(), event);
-    }
-
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    public void onPlayerMove(PlayerMoveEvent event) {
-        final Player player = event.getPlayer();
-        if (player.isOp()) return;
-        if (!worlds.contains(player.getWorld().getName())) return;
-        Block block = player.getLocation().getBlock();
-        if (farmBlocks.contains(block) || farmBlocks.contains(block.getRelative(0, 1, 0))) {
-            // Enter farms
-            if (!player.hasMetadata(META_FARM)) {
-                player.sendActionBar("Entering Spawn Farm Area");
-                if (player.getGameMode() == GameMode.ADVENTURE) {
-                    player.setGameMode(GameMode.SURVIVAL);
-                }
-                setMeta(player, META_FARM, true);
-            }
-        } else if (player.hasMetadata(META_FARM)) {
-            // Leave farms
-            player.removeMetadata(META_FARM, this);
-            player.sendActionBar("Leaving Spawn Farm Area");
-            if (player.getGameMode() == GameMode.SURVIVAL) {
-                player.setGameMode(GameMode.ADVENTURE);
-            }
-        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
@@ -414,9 +385,5 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     int getSelectionMeta(Player player, String key) {
         if (!player.hasMetadata(key)) throw new NullPointerException();
         return player.getMetadata(key).get(0).asInt();
-    }
-
-    void setMeta(Player player, String key, Object value) {
-        player.setMetadata(key, new FixedMetadataValue(this, value));
     }
 }

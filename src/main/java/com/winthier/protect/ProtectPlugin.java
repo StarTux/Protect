@@ -227,7 +227,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
             // Enter farms
             if (!player.hasMetadata(META_FARM)) {
                 player.sendActionBar("Entering Spawn Farm Area");
-                if (player.getGameMode() != GameMode.SURVIVAL) {
+                if (player.getGameMode() == GameMode.ADVENTURE) {
                     player.setGameMode(GameMode.SURVIVAL);
                 }
                 setMeta(player, META_FARM, true);
@@ -236,7 +236,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
             // Leave farms
             player.removeMetadata(META_FARM, this);
             player.sendActionBar("Leaving Spawn Farm Area");
-            if (player.getGameMode() != GameMode.ADVENTURE) {
+            if (player.getGameMode() == GameMode.SURVIVAL) {
                 player.setGameMode(GameMode.ADVENTURE);
             }
         }

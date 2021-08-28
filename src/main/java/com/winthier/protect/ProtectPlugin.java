@@ -1,7 +1,8 @@
 package com.winthier.protect;
 
+import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
-import com.cavetale.core.event.block.PlayerCanBuildEvent;
+import com.cavetale.core.event.entity.PlayerEntityAbilityQuery;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -341,12 +342,6 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         onProtectEvent(event.getPlayer(), event);
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    public void onPlayerCanBuild(PlayerCanBuildEvent event) {
-        if (farmBlocks.contains(event.getBlock())) return;
-        onProtectEvent(event.getPlayer(), event);
-    }
-
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onPlayerBreakBlock(PlayerBreakBlockEvent event) {
         if (farmBlocks.contains(event.getBlock())) return;
@@ -378,6 +373,49 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerTakeLecternBook(PlayerTakeLecternBookEvent event) {
         onProtectEvent(event.getPlayer(), event);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    void onPlayerBlockAbility(PlayerBlockAbilityQuery query) {
+        switch (query.getAction()) {
+        case USE: // Buttons: Doors
+        case READ: // Lectern
+        case OPEN: // Chests
+        case INVENTORY:
+            return;
+        case BUILD:
+            if (farmBlocks.contains(query.getBlock()) && farmMaterials.contains(query.getBlock().getType())) {
+                return;
+            }
+        case PLACE_ENTITY:
+        case SPAWN_MOB: // PocketMob
+        default:
+            onProtectEvent(query.getPlayer(), query);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    void onPlayerEntityAbility(PlayerEntityAbilityQuery query) {
+        switch (query.getAction()) {
+        case MOUNT:
+        case DISMOUNT:
+        case SIT:
+        case SHEAR:
+        case FEED:
+        case BREED:
+        case LEASH:
+        case PICKUP:
+        case INVENTORY:
+        case DAMAGE:
+        case POTION:
+        case CATCH:
+        case OPEN:
+        case MOVE:
+        case PLACE:
+        case GIMMICK:
+        default:
+            onProtectEvent(query.getPlayer(), query);
+        }
     }
 
     // --- Meta Utility

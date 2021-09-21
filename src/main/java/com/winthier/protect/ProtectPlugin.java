@@ -21,6 +21,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -155,16 +156,23 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         saveConfig();
     }
 
-    public void onProtectEvent(Player player, Cancellable event) {
-        if (player.isOp()) return;
-        if (player.hasPermission("protect.override")) return;
+    /**
+     * Generic player event handler.
+     * @return false if player is denied, true otherwise.
+     */
+    public boolean onProtectEvent(Player player, Cancellable event) {
+        if (player.isOp()) return true;
+        if (player.hasPermission("protect.override")) return true;
         if (worlds.contains(player.getWorld().getName())) {
-            event.setCancelled(true);
+            if (event != null) event.setCancelled(true);
+            return false;
         } else if (player.getWorld().getEnvironment() == World.Environment.NETHER) {
             if (player.getLocation().getBlockY() >= 128) {
-                event.setCancelled(true);
+                if (event != null) event.setCancelled(true);
+                return false;
             }
         }
+        return true;
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
@@ -210,6 +218,10 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
                     break;
                 }
             }
+            if (!onProtectEvent(event.getPlayer(), null)) {
+                event.setUseInteractedBlock(Event.Result.DENY);
+            }
+            return;
         }
         onProtectEvent(event.getPlayer(), event);
     }

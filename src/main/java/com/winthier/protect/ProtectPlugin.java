@@ -394,6 +394,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         case READ: // Lectern
         case OPEN: // Chests
         case INVENTORY:
+        case FLY:
             return;
         case BUILD:
             if (farmBlocks.contains(query.getBlock()) && farmMaterials.contains(query.getBlock().getType())) {

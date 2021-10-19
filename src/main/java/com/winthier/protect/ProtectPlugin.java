@@ -37,6 +37,7 @@ import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
@@ -327,6 +328,13 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
             event.setCancelled(true);
         default: break;
         }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    public void onHangingBreak(HangingBreakEvent event) {
+        if (event instanceof HangingBreakByEntityEvent) return;
+        if (!worlds.contains(event.getEntity().getWorld().getName())) return;
+        event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

@@ -287,6 +287,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         Player player = getPlayerDamager(event.getDamager());
         if (player == null) return;
+        if (event.getEntity() instanceof Player) return;
         onProtectEvent(player, event);
     }
 

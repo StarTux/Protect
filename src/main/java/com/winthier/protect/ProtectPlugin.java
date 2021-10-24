@@ -4,6 +4,7 @@ import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.core.event.entity.PlayerEntityAbilityQuery;
 import com.destroystokyo.paper.MaterialTags;
+import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -293,6 +294,13 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onProjectileHit(ProjectileHitEvent event) {
+        Player player = getPlayerDamager(event.getEntity());
+        if (player == null) return;
+        onProtectEvent(player, event);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    public void onProjectileCollide(ProjectileCollideEvent event) {
         Player player = getPlayerDamager(event.getEntity());
         if (player == null) return;
         onProtectEvent(player, event);

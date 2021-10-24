@@ -4,7 +4,6 @@ import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.core.event.entity.PlayerEntityAbilityQuery;
 import com.destroystokyo.paper.MaterialTags;
-import com.destroystokyo.paper.event.entity.ProjectileCollideEvent;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -38,7 +37,6 @@ import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
@@ -294,24 +292,10 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         onProtectEvent(player, event);
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    public void onProjectileHit(ProjectileHitEvent event) {
-        Player player = getPlayerDamager(event.getEntity());
-        if (player == null) return;
-        onProtectEvent(player, event);
-    }
-
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    public void onProjectileCollide(ProjectileCollideEvent event) {
-        Player player = getPlayerDamager(event.getEntity());
-        if (player == null) return;
-        onProtectEvent(player, event);
-    }
-
     /**
      * We extinguish launched arrows. Flame arrows cause a visual
      * flame effect on the client side which we cannot seem to cancel
-     * otherwise (including with any of the EventHandlers above).
+     * otherwise (including ProjectileHit and Collide).
      */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onProjectileLaunch(ProjectileLaunchEvent event) {

@@ -17,6 +17,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -38,6 +39,7 @@ import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
@@ -304,6 +306,23 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         Player player = getPlayerDamager(event.getEntity());
         if (player == null) return;
         onProtectEvent(player, event);
+    }
+
+    /**
+     * We extinguish launched arrows. Flame arrows cause a visual
+     * flame effect on the client side which we cannot seem to cancel
+     * otherwise (including with any of the EventHandlers above).
+     */
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    public void onProjectileLaunch(ProjectileLaunchEvent event) {
+        Player player = getPlayerDamager(event.getEntity());
+        if (player == null) return;
+        if (!onProtectEvent(player, null)) {
+            if (event.getEntity() instanceof AbstractArrow) {
+                AbstractArrow arrow = (AbstractArrow) event.getEntity();
+                arrow.setFireTicks(0);
+            }
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

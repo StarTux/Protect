@@ -34,6 +34,7 @@ import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.CauldronLevelChangeEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -400,6 +401,13 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         if (worlds.contains(player.getWorld().getName())) {
             event.setHatching(false);
             event.setNumHatches((byte) 0);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+        if (worlds.contains(event.getBlock().getWorld().getName())) {
+            event.setCancelled(true);
         }
     }
 

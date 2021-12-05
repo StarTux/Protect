@@ -480,6 +480,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         String worldName = event.getBlock().getWorld().getName();
         if (worldName.equals("spawn")) return;
         if (!worlds.contains(worldName)) return;
+        event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
@@ -487,5 +488,6 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         String worldName = event.getBlock().getWorld().getName();
         if (worldName.equals("spawn")) return;
         if (!worlds.contains(worldName)) return;
+        event.setCancelled(true);
     }
 }

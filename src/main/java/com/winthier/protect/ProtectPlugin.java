@@ -30,6 +30,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockFormEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.CauldronLevelChangeEvent;
@@ -471,5 +473,19 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     int getSelectionMeta(Player player, String key) {
         if (!player.hasMetadata(key)) throw new NullPointerException();
         return player.getMetadata(key).get(0).asInt();
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    void onBlockForm(BlockFormEvent event) {
+        String worldName = event.getBlock().getWorld().getName();
+        if (worldName.equals("spawn")) return;
+        if (!worlds.contains(worldName)) return;
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    void onBlockFromTo(BlockFromToEvent event) {
+        String worldName = event.getBlock().getWorld().getName();
+        if (worldName.equals("spawn")) return;
+        if (!worlds.contains(worldName)) return;
     }
 }

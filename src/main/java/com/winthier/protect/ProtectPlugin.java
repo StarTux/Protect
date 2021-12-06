@@ -52,6 +52,7 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTakeLecternBookEvent;
+import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -267,6 +268,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
         if (event.getRightClicked().getType() == EntityType.PIG) return;
+        if (event.getRightClicked().getType() == EntityType.BOAT) return;
         onProtectEvent(event.getPlayer(), event);
     }
 
@@ -291,6 +293,14 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         Player player = getPlayerDamager(event.getDamager());
+        if (player == null) return;
+        onProtectEvent(player, event);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    public void onVehicleDamage(VehicleDamageEvent event) {
+        if (event.getAttacker() == null) return;
+        Player player = getPlayerDamager(event.getAttacker());
         if (player == null) return;
         onProtectEvent(player, event);
     }

@@ -53,7 +53,6 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ProtectPlugin extends JavaPlugin implements Listener {
@@ -215,15 +214,6 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
                 if (block.getWorld().getName().equals("spawn")) return;
                 break;
             default: break;
-            }
-            ItemStack item = event.getItem();
-            if (item != null) {
-                switch (item.getType()) {
-                case FIREWORK_ROCKET:
-                    return;
-                default:
-                    break;
-                }
             }
             if (!onProtectEvent(event.getPlayer(), null)) {
                 event.setUseInteractedBlock(Event.Result.DENY);

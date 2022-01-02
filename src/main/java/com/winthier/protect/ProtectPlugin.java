@@ -164,16 +164,19 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
 
     /**
      * Generic player event handler.
+     * @param player the player
+     * @param block the block if available or null
+     * @param event the event if it should be automatically cancelled or null
      * @return false if player is denied, true otherwise.
      */
-    public boolean onProtectEvent(Player player, Cancellable event) {
+    public boolean onProtectEvent(Player player, Block block, Cancellable event) {
         if (player.isOp()) return true;
         if (player.hasPermission("protect.override")) return true;
         if (worlds.contains(player.getWorld().getName())) {
             if (event != null) event.setCancelled(true);
             return false;
         } else if (player.getWorld().getEnvironment() == World.Environment.NETHER) {
-            if (player.getLocation().getBlockY() >= 128) {
+            if (block != null && block.getY() >= 127) {
                 if (event != null) event.setCancelled(true);
                 return false;
             }
@@ -184,8 +187,9 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (!worlds.contains(event.getPlayer().getWorld().getName())) return;
+        Block block = event.getClickedBlock();
         if (event.getAction() == Action.PHYSICAL) {
-            Material mat = event.getClickedBlock().getType();
+            Material mat = block.getType();
             if (mat == Material.FARMLAND || mat == Material.TURTLE_EGG) {
                 event.setCancelled(true);
                 return;
@@ -193,10 +197,9 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
                 return;
             }
         }
-        if (farmBlocks.contains(event.getClickedBlock())) return;
-        if (farmBlocks.contains(event.getClickedBlock().getRelative(0, 1, 0))) return;
+        if (farmBlocks.contains(block)) return;
+        if (farmBlocks.contains(block.getRelative(0, 1, 0))) return;
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            Block block = event.getClickedBlock();
             Material mat = block.getType();
             if (Tag.DOORS.isTagged(mat)) return;
             if (Tag.BUTTONS.isTagged(mat)) return;
@@ -215,12 +218,12 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
                 break;
             default: break;
             }
-            if (!onProtectEvent(event.getPlayer(), null)) {
+            if (!onProtectEvent(event.getPlayer(), block, null)) {
                 event.setUseInteractedBlock(Event.Result.DENY);
             }
             return;
         }
-        onProtectEvent(event.getPlayer(), event);
+        onProtectEvent(event.getPlayer(), block, event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
@@ -229,7 +232,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
             && farmMaterials.contains(event.getBlock().getType())) {
             return;
         }
-        onProtectEvent(event.getPlayer(), event);
+        onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
@@ -238,13 +241,13 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
             && farmMaterials.contains(event.getBlock().getType())) {
             return;
         }
-        onProtectEvent(event.getPlayer(), event);
+        onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onBlockDamage(BlockDamageEvent event) {
         if (farmBlocks.contains(event.getBlock())) return;
-        onProtectEvent(event.getPlayer(), event);
+        onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
 
     // Frost Walker
@@ -252,20 +255,20 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     public void onEntityBlockForm(EntityBlockFormEvent event) {
         Player player = event.getEntity() instanceof Player ? (Player) event.getEntity() : null;
         if (player == null) return;
-        onProtectEvent(player, event);
+        onProtectEvent(player, event.getBlock(), event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
         if (event.getRightClicked().getType() == EntityType.PIG) return;
         if (event.getRightClicked().getType() == EntityType.BOAT) return;
-        onProtectEvent(event.getPlayer(), event);
+        onProtectEvent(event.getPlayer(), null, event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
         if (event.getRightClicked().getType() == EntityType.PIG) return;
-        onProtectEvent(event.getPlayer(), event);
+        onProtectEvent(event.getPlayer(), null, event);
     }
 
     Player getPlayerDamager(Entity damager) {
@@ -284,7 +287,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         Player player = getPlayerDamager(event.getDamager());
         if (player == null) return;
-        onProtectEvent(player, event);
+        onProtectEvent(player, null, event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
@@ -292,7 +295,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         if (event.getAttacker() == null) return;
         Player player = getPlayerDamager(event.getAttacker());
         if (player == null) return;
-        onProtectEvent(player, event);
+        onProtectEvent(player, null, event);
     }
 
     /**
@@ -304,7 +307,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
         Player player = getPlayerDamager(event.getEntity());
         if (player == null) return;
-        if (!onProtectEvent(player, null)) {
+        if (!onProtectEvent(player, null, null)) {
             if (event.getEntity() instanceof AbstractArrow) {
                 AbstractArrow arrow = (AbstractArrow) event.getEntity();
                 arrow.setFireTicks(0);
@@ -316,7 +319,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     public void onEntityCombustByEntity(EntityCombustByEntityEvent event) {
         Player player = getPlayerDamager(event.getCombuster());
         if (player == null) return;
-        onProtectEvent(player, event);
+        onProtectEvent(player, null, event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
@@ -362,7 +365,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onHangingBreakByEntity(HangingBreakByEntityEvent event) {
         if (event.getRemover() instanceof Player) {
-            onProtectEvent((Player) event.getRemover(), event);
+            onProtectEvent((Player) event.getRemover(), null, event);
         } else {
             if (!worlds.contains(event.getEntity().getWorld().getName())) return;
             event.setCancelled(true);
@@ -371,23 +374,23 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onHangingPlace(HangingPlaceEvent event) {
-        onProtectEvent(event.getPlayer(), event);
+        onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
-        onProtectEvent(event.getPlayer(), event);
+        onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerBucketFill(PlayerBucketFillEvent event) {
-        onProtectEvent(event.getPlayer(), event);
+        onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void onPlayerBreakBlock(PlayerBreakBlockEvent event) {
         if (farmBlocks.contains(event.getBlock())) return;
-        onProtectEvent(event.getPlayer(), event);
+        onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
 
     // @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
@@ -416,12 +419,12 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onPlayerFish(PlayerFishEvent event) {
         if (event.getCaught() == null) return;
-        onProtectEvent(event.getPlayer(), event);
+        onProtectEvent(event.getPlayer(), null, event);
     }
 
     @EventHandler
     public void onPlayerTakeLecternBook(PlayerTakeLecternBookEvent event) {
-        onProtectEvent(event.getPlayer(), event);
+        onProtectEvent(event.getPlayer(), null, event);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -440,7 +443,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         case PLACE_ENTITY:
         case SPAWN_MOB: // PocketMob
         default:
-            onProtectEvent(query.getPlayer(), query);
+            onProtectEvent(query.getPlayer(), query.getBlock(), query);
         }
     }
 
@@ -464,7 +467,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         case PLACE:
         case GIMMICK:
         default:
-            onProtectEvent(query.getPlayer(), query);
+            onProtectEvent(query.getPlayer(), null, query);
         }
     }
 

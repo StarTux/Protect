@@ -412,6 +412,11 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     public void onEntityChangeBlock(EntityChangeBlockEvent event) {
         if (worlds.contains(event.getBlock().getWorld().getName())) {
+            if (event.getEntity() instanceof Player
+                && event.getBlock().getType() == Material.BIG_DRIPLEAF
+                && event.getTo() == Material.BIG_DRIPLEAF) {
+                return;
+            }
             event.setCancelled(true);
         }
     }

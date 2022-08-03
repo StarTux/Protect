@@ -30,6 +30,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
@@ -486,16 +487,18 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     void onBlockForm(BlockFormEvent event) {
         String worldName = event.getBlock().getWorld().getName();
-        if (worldName.equals("spawn")) return;
-        if (!worlds.contains(worldName)) return;
-        event.setCancelled(true);
+        if (worlds.contains(worldName)) event.setCancelled(true);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    void onBlockFade(BlockFadeEvent event) {
+        String worldName = event.getBlock().getWorld().getName();
+        if (worlds.contains(worldName)) event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     void onBlockFromTo(BlockFromToEvent event) {
         String worldName = event.getBlock().getWorld().getName();
-        if (worldName.equals("spawn")) return;
-        if (!worlds.contains(worldName)) return;
-        event.setCancelled(true);
+        if (worlds.contains(worldName)) event.setCancelled(true);
     }
 }

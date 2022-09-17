@@ -5,7 +5,9 @@ import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.core.event.entity.PlayerEntityAbilityQuery;
 import com.destroystokyo.paper.MaterialTags;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.World;
@@ -54,12 +56,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ProtectPlugin extends JavaPlugin implements Listener {
     private final List<String> worlds = new ArrayList<>();
+    private final Map<String, ProtectWorld> worldMap = new HashMap<>();
 
     @Override
     public void onEnable() {
+        getServer().getPluginManager().registerEvents(this, this);
         saveDefaultConfig();
         importConfig();
-        getServer().getPluginManager().registerEvents(this, this);
     }
 
     @Override
@@ -76,6 +79,11 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         reloadConfig();
         worlds.clear();
         worlds.addAll(getConfig().getStringList("worlds"));
+        for (String world : worlds) {
+            ProtectWorld pworld = new ProtectWorld(this, world);
+            worldMap.put(world, pworld);
+            pworld.enable();
+        }
     }
 
     /**
@@ -102,7 +110,8 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     private void onPlayerInteract(PlayerInteractEvent event) {
-        if (!worlds.contains(event.getPlayer().getWorld().getName())) return;
+        final Player player = event.getPlayer();
+        if (!worlds.contains(player.getWorld().getName())) return;
         Block block = event.getClickedBlock();
         if (event.getAction() == Action.PHYSICAL) {
             Material mat = block.getType();
@@ -132,26 +141,61 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
                 break;
             default: break;
             }
-            if (!onProtectEvent(event.getPlayer(), block, null)) {
+            if (player.hasPermission("protect.farm")) {
+                if (event.hasItem() && !event.isBlockInHand() && event.getItem().getType() == Material.BONE_MEAL) {
+                    ProtectWorld pworld = worldMap.get(block.getWorld().getName());
+                    if (pworld != null && pworld.canBuild(block)) {
+                        return;
+                    }
+                }
+                ProtectWorld pworld = worldMap.get(block.getWorld().getName());
+                if (pworld != null && pworld.canBuild(block.getRelative(event.getBlockFace()))) {
+                    return;
+                }
+            }
+            if (!onProtectEvent(player, block, null)) {
                 event.setUseInteractedBlock(Event.Result.DENY);
             }
             return;
+        }
+        if (player.hasPermission("protect.farm")) {
+            if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+                ProtectWorld pworld = worldMap.get(block.getWorld().getName());
+                if (pworld != null && pworld.canBuild(block)) {
+                    return;
+                }
+            }
         }
         onProtectEvent(event.getPlayer(), block, event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     private void onBlockPlace(BlockPlaceEvent event) {
+        final Player player = event.getPlayer();
+        if (player.hasPermission("protect.farm")) {
+            ProtectWorld pworld = worldMap.get(event.getBlock().getWorld().getName());
+            if (pworld != null && pworld.canBuild(event.getBlock(), event.getBlock().getType())) return;
+        }
         onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     private void onBlockBreak(BlockBreakEvent event) {
+        final Player player = event.getPlayer();
+        if (player.hasPermission("protect.farm")) {
+            ProtectWorld pworld = worldMap.get(event.getBlock().getWorld().getName());
+            if (pworld != null && pworld.canBuild(event.getBlock(), event.getBlock().getType())) return;
+        }
         onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     private void onBlockDamage(BlockDamageEvent event) {
+        final Player player = event.getPlayer();
+        if (player.hasPermission("protect.farm")) {
+            ProtectWorld pworld = worldMap.get(event.getBlock().getWorld().getName());
+            if (pworld != null && pworld.canBuild(event.getBlock(), event.getBlock().getType())) return;
+        }
         onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
 
@@ -341,6 +385,13 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         case FLY:
             return;
         case BUILD:
+            if (query.getPlayer().hasPermission("protect.farm")) {
+                ProtectWorld pworld = worldMap.get(query.getBlock().getWorld().getName());
+                if (pworld != null && pworld.canBuild(query.getBlock())) {
+                    return;
+                }
+            }
+            return;
         case PLACE_ENTITY:
         case SPAWN_MOB: // PocketMob
         default:

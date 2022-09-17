@@ -7,7 +7,7 @@ description: Protect worlds from player modifications
 author: StarTux
 website: https://cavetale.com
 
-depend: [Core]
+depend: [Core, Area]
 
 commands:
 
@@ -20,6 +20,12 @@ permissions:
 
   protect.protect:
     description: Use /protect
+    default: op
 
   protect.override:
     description: Override world protection
+    default: op
+
+  protect.farm:
+    description: Use farm blocks
+    default: op

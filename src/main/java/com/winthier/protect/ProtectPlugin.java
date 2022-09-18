@@ -391,7 +391,6 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
                     return;
                 }
             }
-            return;
         case PLACE_ENTITY:
         case SPAWN_MOB: // PocketMob
         default:

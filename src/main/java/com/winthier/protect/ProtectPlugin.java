@@ -31,6 +31,7 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.CauldronLevelChangeEvent;
@@ -420,6 +421,14 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         default:
             onProtectEvent(query.getPlayer(), null, query);
         }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    private void onBlockGrow(BlockGrowEvent event) {
+        String worldName = event.getBlock().getWorld().getName();
+        ProtectWorld pworld = worldMap.get(worldName);
+        if (pworld != null && pworld.canBuild(event.getBlock(), event.getBlock().getType())) return;
+        if (worlds.contains(worldName)) event.setCancelled(true);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)

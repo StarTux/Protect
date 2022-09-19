@@ -427,7 +427,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     private void onBlockGrow(BlockGrowEvent event) {
         String worldName = event.getBlock().getWorld().getName();
         ProtectWorld pworld = worldMap.get(worldName);
-        if (pworld != null && pworld.canBuild(event.getBlock(), event.getBlock().getType())) return;
+        if (pworld != null && pworld.canBuild(event.getBlock(), event.getNewState().getType())) return;
         if (worlds.contains(worldName)) event.setCancelled(true);
     }
 

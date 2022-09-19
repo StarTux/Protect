@@ -175,7 +175,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         final Player player = event.getPlayer();
         if (player.hasPermission("protect.farm")) {
             ProtectWorld pworld = worldMap.get(event.getBlock().getWorld().getName());
-            if (pworld != null && pworld.canBuild(event.getBlock(), event.getBlock().getType())) return;
+            if (pworld != null && pworld.canPlant(event.getBlock(), event.getBlock().getType())) return;
         }
         onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
@@ -185,7 +185,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         final Player player = event.getPlayer();
         if (player.hasPermission("protect.farm")) {
             ProtectWorld pworld = worldMap.get(event.getBlock().getWorld().getName());
-            if (pworld != null && pworld.canBuild(event.getBlock(), event.getBlock().getType())) return;
+            if (pworld != null && pworld.canHarvest(event.getBlock(), event.getBlock().getType())) return;
         }
         onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
@@ -195,7 +195,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         final Player player = event.getPlayer();
         if (player.hasPermission("protect.farm")) {
             ProtectWorld pworld = worldMap.get(event.getBlock().getWorld().getName());
-            if (pworld != null && pworld.canBuild(event.getBlock(), event.getBlock().getType())) return;
+            if (pworld != null && pworld.canHarvest(event.getBlock(), event.getBlock().getType())) return;
         }
         onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
@@ -427,7 +427,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     private void onBlockGrow(BlockGrowEvent event) {
         String worldName = event.getBlock().getWorld().getName();
         ProtectWorld pworld = worldMap.get(worldName);
-        if (pworld != null && pworld.canBuild(event.getBlock(), event.getNewState().getType())) return;
+        if (pworld != null && pworld.canPlant(event.getBlock(), event.getNewState().getType())) return;
         if (worlds.contains(worldName)) event.setCancelled(true);
     }
 

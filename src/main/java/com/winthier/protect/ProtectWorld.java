@@ -10,11 +10,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.scheduler.BukkitTask;
 
 @RequiredArgsConstructor
@@ -50,9 +52,7 @@ public final class ProtectWorld {
                 continue;
             }
             crops.computeIfAbsent(material, mat -> new HashSet<>()).addAll(area.enumerate());
-            if (material.createBlockData().isRandomlyTicked()) {
-                tickBlockSet.addAll(area.enumerate());
-            }
+            tickBlockSet.addAll(area.enumerate());
             canBuildBlocks.addAll(area.enumerate());
         }
         tickBlocks.addAll(tickBlockSet);
@@ -87,17 +87,41 @@ public final class ProtectWorld {
         Block block = vec.toBlock(world);
         if (block.getBlockData().isRandomlyTicked()) {
             block.randomTick();
+        } else if (block.isEmpty() && block.getRelative(0, -1, 0).getType() == Material.FARMLAND
+                   && ThreadLocalRandom.current().nextInt(10) == 0) {
+            for (Map.Entry<Material, Set<Vec3i>> entry : crops.entrySet()) {
+                if (entry.getValue().contains(vec)) {
+                    Material mat = entry.getKey();
+                    if (mat.createBlockData().isRandomlyTicked()) {
+                        block.setType(mat);
+                    }
+                    break;
+                }
+            }
         }
         tickBlockIndex += 1;
         if (tickBlockIndex >= tickBlocks.size()) {
+            Collections.shuffle(tickBlocks);
             tickBlockIndex = 0;
         }
     }
 
-    protected boolean canBuild(Block block, Material material) {
+    protected boolean canPlant(Block block, Material material) {
         Set<Vec3i> cropSet = crops.get(material);
         if (cropSet != null && cropSet.contains(Vec3i.of(block))) {
             return true;
+        }
+        return false;
+    }
+
+    protected boolean canHarvest(Block block, Material material) {
+        Set<Vec3i> cropSet = crops.get(material);
+        if (cropSet != null && cropSet.contains(Vec3i.of(block))) {
+            if (block.getBlockData() instanceof Ageable age) {
+                return age.getAge() >= age.getMaximumAge();
+            } else {
+                return true;
+            }
         }
         return false;
     }

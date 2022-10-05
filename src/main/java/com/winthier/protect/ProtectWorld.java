@@ -11,30 +11,46 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.scheduler.BukkitTask;
 
-@RequiredArgsConstructor
+/**
+ * Represent a loaded world.  A world is either:
+ * - Fully protected (worlds array in config) with optional whitelisted farm areas
+ * - Not fully protected with optional protected areas
+ */
+@Getter
 public final class ProtectWorld {
     protected final ProtectPlugin plugin;
     protected final String name;
+    @Setter protected boolean fullyProtected;
+    protected final boolean nether;
+    // Farm stuff
     protected final Map<Material, Set<Vec3i>> crops = new HashMap<>();
     protected final List<Vec3i> tickBlocks = new ArrayList<>();
-    protected final Set<Vec3i> canBuildBlocks = new HashSet<>();
+    protected final Set<Vec3i> canPlantBlocks = new HashSet<>();
     protected int tickBlockIndex = 0;
     private BukkitTask tickTask;
+    // Protection stuff
+    private final List<Area> protectedAreas = new ArrayList<>();
 
-    protected void enable() {
-        World world = getWorld();
-        if (world == null) {
-            plugin.getLogger().warning("[" + name + "] World not found!");
-            return;
-        }
+    protected ProtectWorld(final ProtectPlugin plugin, final World world) {
+        this.plugin = plugin;
+        this.name = world.getName();
+        this.nether = world.getEnvironment() == World.Environment.NETHER;
+    }
+
+    protected void enable(World world) {
         AreasFile areasFile = AreasFile.load(getWorld(), "Protect");
         if (areasFile == null) return;
         Set<Vec3i> tickBlockSet = new HashSet<>();
@@ -53,7 +69,10 @@ public final class ProtectWorld {
             }
             crops.computeIfAbsent(material, mat -> new HashSet<>()).addAll(area.enumerate());
             tickBlockSet.addAll(area.enumerate());
-            canBuildBlocks.addAll(area.enumerate());
+            canPlantBlocks.addAll(area.enumerate());
+        }
+        for (Area area : areasFile.find("protect")) {
+            protectedAreas.add(area);
         }
         tickBlocks.addAll(tickBlockSet);
         if (!tickBlocks.isEmpty()) {
@@ -61,6 +80,9 @@ public final class ProtectWorld {
             tickTask = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 1L, 1L);
             plugin.getLogger().info("[" + name + "] World tick task enabled"
                                     + " tickBlocks:" + tickBlocks.size());
+        }
+        if (fullyProtected) {
+            plugin.getLogger().info("[" + name + "] Fully protected");
         }
     }
 
@@ -126,7 +148,47 @@ public final class ProtectWorld {
         return false;
     }
 
-    protected boolean canBuild(Block block) {
-        return canBuildBlocks.contains(Vec3i.of(block));
+    protected boolean canPlant(Block block) {
+        return canPlantBlocks.contains(Vec3i.of(block));
+    }
+
+    /**
+     * Generic player event handler.
+     * @param player the player
+     * @param block the block if available or null
+     * @param event the event if it should be automatically cancelled or null
+     * @return false if player is denied, true otherwise.
+     */
+    public boolean onProtectEvent(Player player, @NonNull Block block, Cancellable event) {
+        // Respect some general player overrides.
+        if (player.hasPermission(ProtectPlugin.PERM_OVERRIDE)) return true;
+        // Protect the nether ceiling
+        if (nether) {
+            if (block != null && block.getY() >= 127) {
+                if (event != null) event.setCancelled(true);
+                return false;
+            }
+        }
+        // Full or partial protection
+        if (fullyProtected || isProtected(block)) {
+            if (event != null) event.setCancelled(true);
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isProtected(Block block) {
+        if (fullyProtected) {
+            return true;
+        } else {
+            for (Area area : protectedAreas) {
+                if (area.contains(block)) return true;
+            }
+            return false;
+        }
+    }
+
+    public boolean isProtected(Location location) {
+        return isProtected(location.getBlock());
     }
 }

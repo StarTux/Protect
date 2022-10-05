@@ -11,7 +11,7 @@ depend: [Core, Area]
 
 commands:
 
-protect:
+  protect:
     description: Admin interface
     permission: protect.protect
     usage: /protect reload

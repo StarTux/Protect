@@ -98,7 +98,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         ProtectWorld old = worldMap.remove(world.getName());
         if (old != null) old.disable();
         ProtectWorld pworld = new ProtectWorld(this, world);
-        if (getConfig().getStringList("worlds").contains(world.getName())) {
+        if (getConfig().getBoolean("AllWorlds") || getConfig().getStringList("worlds").contains(world.getName())) {
             pworld.setFullyProtected(true);
         }
         worldMap.put(pworld.name, pworld);

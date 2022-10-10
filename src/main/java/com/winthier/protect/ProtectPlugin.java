@@ -4,6 +4,7 @@ import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.core.event.entity.PlayerEntityAbilityQuery;
 import com.destroystokyo.paper.MaterialTags;
+import io.papermc.paper.event.block.PlayerShearBlockEvent;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.NonNull;
@@ -198,6 +199,11 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
             return;
         }
         pworld.onProtectEvent(event.getPlayer(), event.getBlock(), event);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    private void onBlockShear(PlayerShearBlockEvent event) {
+        onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)

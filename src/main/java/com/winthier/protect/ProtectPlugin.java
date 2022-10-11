@@ -202,7 +202,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    private void onBlockShear(PlayerShearBlockEvent event) {
+    private void onPlayerShearBlock(PlayerShearBlockEvent event) {
         onProtectEvent(event.getPlayer(), event.getBlock(), event);
     }
 

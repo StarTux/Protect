@@ -294,7 +294,6 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         final Entity entity = event.getEntity();
         final ProtectWorld pworld = getProtectWorld(entity.getWorld());
         if (pworld.isProtected(entity.getLocation())) {
-            event.setCancelled(true);
             event.blockList().clear();
             return;
         } else {
@@ -307,7 +306,6 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         final Block block = event.getBlock();
         final ProtectWorld pworld = getProtectWorld(block.getWorld());
         if (pworld.isProtected(block)) {
-            event.setCancelled(true);
             event.blockList().clear();
             return;
         } else {

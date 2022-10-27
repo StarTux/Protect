@@ -18,6 +18,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Cancellable;
@@ -116,6 +117,22 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
 
     private boolean onProtectEvent(Player player, @NonNull Block block, Cancellable event) {
         return getProtectWorld(block.getWorld()).onProtectEvent(player, block, event);
+    }
+
+    private boolean isHostileMob(Entity entity) {
+        switch (entity.getType()) {
+        case GHAST:
+        case SLIME:
+        case PHANTOM:
+        case MAGMA_CUBE:
+        case ENDER_DRAGON:
+        case SHULKER:
+        case SHULKER_BULLET:
+        case HOGLIN:
+            return true;
+        default:
+            return entity instanceof Monster;
+        }
     }
 
     /**
@@ -237,6 +254,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
     private void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
         if (event.getRightClicked().getType() == EntityType.PIG) return;
+        if (isHostileMob(event.getRightClicked())) return;
         onProtectEvent(event.getPlayer(), event.getRightClicked().getLocation().getBlock(), event);
     }
 
@@ -256,6 +274,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     private void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         Player player = getPlayerDamager(event.getDamager());
         if (player == null) return;
+        if (isHostileMob(event.getEntity())) return;
         onProtectEvent(player, event.getEntity().getLocation().getBlock(), event);
     }
 
@@ -276,9 +295,10 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     private void onProjectileLaunch(ProjectileLaunchEvent event) {
         Player player = getPlayerDamager(event.getEntity());
         if (player == null) return;
-        if (!(event.getEntity() instanceof AbstractArrow arrow)) return;
-        if (!onProtectEvent(player, event.getEntity().getLocation().getBlock(), null)) {
-            arrow.setFireTicks(0);
+        if (event.getEntity() instanceof AbstractArrow arrow) {
+            if (arrow.getWorld().getName().equals("spawn") && !onProtectEvent(player, arrow.getLocation().getBlock(), null)) {
+                arrow.setFireTicks(0);
+            }
         }
     }
 
@@ -286,6 +306,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     private void onEntityCombustByEntity(EntityCombustByEntityEvent event) {
         Player player = getPlayerDamager(event.getCombuster());
         if (player == null) return;
+        if (isHostileMob(event.getEntity())) return;
         onProtectEvent(player, event.getEntity().getLocation().getBlock(), event);
     }
 
@@ -457,6 +478,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         case PLACE:
         case GIMMICK:
         default:
+            if (isHostileMob(query.getEntity())) return;
             onProtectEvent(query.getPlayer(), query.getEntity().getLocation().getBlock(), query);
         }
     }

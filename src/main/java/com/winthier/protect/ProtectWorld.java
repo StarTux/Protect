@@ -43,6 +43,7 @@ public final class ProtectWorld {
     private BukkitTask tickTask;
     // Protection stuff
     private final List<Area> protectedAreas = new ArrayList<>();
+    private final List<Area> useAreas = new ArrayList<>();
 
     protected ProtectWorld(final ProtectPlugin plugin, final World world) {
         this.plugin = plugin;
@@ -73,6 +74,9 @@ public final class ProtectWorld {
         }
         for (Area area : areasFile.find("protect")) {
             protectedAreas.add(area);
+        }
+        for (Area area : areasFile.find("use")) {
+            useAreas.add(area);
         }
         tickBlocks.addAll(tickBlockSet);
         if (!tickBlocks.isEmpty()) {
@@ -168,6 +172,9 @@ public final class ProtectWorld {
                 if (event != null) event.setCancelled(true);
                 return false;
             }
+        }
+        for (Area area : useAreas) {
+            if (area.contains(block)) return true;
         }
         // Full or partial protection
         if (fullyProtected || isProtected(block)) {

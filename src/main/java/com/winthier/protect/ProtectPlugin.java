@@ -156,9 +156,12 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             // Whitelist certain non-invasive right click actions.
             Material mat = block.getType();
-            if (Tag.DOORS.isTagged(mat)) return;
-            if (Tag.BUTTONS.isTagged(mat)) return;
-            if (MaterialTags.FENCE_GATES.isTagged(mat)) return;
+            if (Tag.DOORS.isTagged(mat) || Tag.BUTTONS.isTagged(mat) || MaterialTags.FENCE_GATES.isTagged(mat)) {
+                if (pworld.isProtectedArea(block)) {
+                    event.setUseInteractedBlock(Event.Result.DENY);
+                }
+                return;
+            }
             switch (mat) {
             case ENCHANTING_TABLE:
             case ENDER_CHEST:

@@ -184,6 +184,13 @@ public final class ProtectWorld {
         return true;
     }
 
+    public boolean isProtectedArea(Block block) {
+        for (Area area : protectedAreas) {
+            if (area.contains(block)) return true;
+        }
+        return false;
+    }
+
     public boolean isProtected(Block block) {
         if (fullyProtected) {
             return true;

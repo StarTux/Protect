@@ -1,7 +1,7 @@
 main: com.winthier.protect.ProtectPlugin
 name: Protect
 version: 0.1
-api-version: 1.19
+api-version: '1.20'
 
 description: Protect worlds from player modifications
 author: StarTux

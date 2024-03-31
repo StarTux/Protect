@@ -440,6 +440,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     private void onPlayerBlockAbility(PlayerBlockAbilityQuery query) {
+        if (query.getPlayer().hasPermission(ProtectPlugin.PERM_OVERRIDE)) return;
         switch (query.getAction()) {
         case USE: // Buttons: Doors
         case READ: // Lectern
@@ -463,6 +464,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     private void onPlayerEntityAbility(PlayerEntityAbilityQuery query) {
+        if (query.getPlayer().hasPermission(ProtectPlugin.PERM_OVERRIDE)) return;
         switch (query.getAction()) {
         case MOUNT:
         case DISMOUNT:

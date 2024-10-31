@@ -49,7 +49,6 @@ import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
-import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -425,12 +424,6 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         } else if (getProtectWorld(block.getWorld()).isProtected(block)) {
             event.setCancelled(true);
         }
-    }
-
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
-    private void onPlayerFish(PlayerFishEvent event) {
-        if (event.getCaught() == null) return;
-        onProtectEvent(event.getPlayer(), event.getCaught().getLocation().getBlock(), event);
     }
 
     @EventHandler

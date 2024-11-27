@@ -16,6 +16,7 @@ import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.AbstractArrow;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Monster;
@@ -249,7 +250,7 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         final Entity entity = event.getRightClicked();
         final EntityType entityType = entity.getType();
         if (entityType == EntityType.PIG) return;
-        if (entityType == EntityType.BOAT) return;
+        if (entity instanceof Boat) return;
         onProtectEvent(event.getPlayer(), entity.getLocation().getBlock(), event);
     }
 

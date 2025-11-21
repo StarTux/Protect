@@ -171,10 +171,12 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
             case CHEST:
             case TRAPPED_CHEST:
             case BARREL:
-                // Temp solutions to protect containers outside spawn
                 if (block.getWorld().getName().equals("spawn")) return;
                 break;
-            default: break;
+            default:
+                if (Tag.COPPER_CHESTS.isTagged(mat)) {
+                    if (block.getWorld().getName().equals("spawn")) return;
+                }
             }
             if (player.hasPermission(PERM_FARM)) {
                 if (event.hasItem() && !event.isBlockInHand() && event.getItem().getType() == Material.BONE_MEAL) {

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.NonNull;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.World;
@@ -39,6 +40,7 @@ import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.CauldronLevelChangeEvent;
 import org.bukkit.event.block.EntityBlockFormEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -525,5 +527,18 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
     private void onWorldUnload(WorldUnloadEvent event) {
         ProtectWorld pworld = worldMap.remove(event.getWorld().getName());
         if (pworld != null) pworld.disable();
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    private void onCreatureSpawn(CreatureSpawnEvent event) {
+        final Location location = event.getLocation();
+        switch (event.getSpawnReason()) {
+        case POTION_EFFECT:
+            // Oozing and Infested
+            if (getProtectWorld(location.getWorld()).isProtected(location)) {
+                event.setCancelled(true);
+            }
+        default: break;
+        }
     }
 }

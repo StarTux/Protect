@@ -4,6 +4,7 @@ import com.cavetale.core.event.block.PlayerBlockAbilityQuery;
 import com.cavetale.core.event.block.PlayerBreakBlockEvent;
 import com.cavetale.core.event.entity.PlayerEntityAbilityQuery;
 import com.destroystokyo.paper.MaterialTags;
+import com.destroystokyo.paper.event.entity.EntityKnockbackByEntityEvent;
 import io.papermc.paper.event.block.PlayerShearBlockEvent;
 import java.util.HashMap;
 import java.util.Map;
@@ -291,6 +292,14 @@ public final class ProtectPlugin extends JavaPlugin implements Listener {
         Player player = getPlayerDamager(event.getAttacker());
         if (player == null) return;
         onProtectEvent(player, event.getVehicle().getLocation().getBlock(), event);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.NORMAL)
+    private void onEntityKnockbackByEntity(EntityKnockbackByEntityEvent event) {
+        Player player = getPlayerDamager(event.getHitBy());
+        if (player == null) return;
+        if (isHostileMob(event.getEntity())) return;
+        onProtectEvent(player, event.getEntity().getLocation().getBlock(), event);
     }
 
     /**
